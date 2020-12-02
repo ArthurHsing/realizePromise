@@ -1,20 +1,19 @@
 const MyPromise = require('./MyPromise');
 
-let promise = new MyPromise((resolve, reject) => {
-  resolve('success');
+let promise1 = new MyPromise((resolve, reject) => {
+  resolve('Promise1');
   // reject('Error');
-  // throw new Error('HaHaHa Error!');
-  // setTimeout(() => {
-  //   resolve('success');
-  // }, 2000)
 });
-promise.then((value) => {
-  console.log('FulFilled:' + value);
-}, (reason) => {
-  console.log('Rejected:' + reason);
-})
-promise.then((value) => {
-  console.log('FulFilled:' + value);
-}, (reason) => {
-  console.log('Rejected:' + reason);
+
+let promise2 = promise1.then(() => {
+  return '1234';
+}, (reson) => {
+  return reson;
+});
+
+promise2.then(value => {
+  console.log('调用');
+  console.log(value);
+}, reason => {
+  console.log(reason);
 })
