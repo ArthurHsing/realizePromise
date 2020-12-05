@@ -6,16 +6,21 @@ function resolvePromise(promise2, x, resolve, reject) {
   if (promise2 === x) {
     return reject(new TypeError('Chaining cycle detected for promise #<MyPromise>'));
   }
-  let called = false;
+  let called = false; //这个called的作用我看得有点蒙
   if ((typeof x === 'object' && x !== null) || typeof x === 'function') {
     try {
       let then = x.then;  //这里的取属性操作有可能被劫持，所以要try一下
       if (typeof then === 'function') {  //认为它是一个Promise的then
-        then.call(x, v => {
+        then.call(x, y => { //调用新的返回的promise(即x)的then方法
+          //其作用就是把promise2的状态改为onFULFILLED，并把创建x时resolve的值作为promise2的value
+          // promise2.then方法的调用是同步的，而且那时候promise2的状态还是pending状态，说明在那时候调用的时候，promise.then方法的成功和失败的
+          // 回调就已经被添加到promise2中了，这时再在这里添加resolve方法，实际上不仅改了promise2的状态，还将promise2.then的回调（回调的添加是同步的）也顺带执行了
+          // resolve(y);
           if (called) return;
           called = true;
-          resolvePromise(promise2, v, resolve, reject);
-        }, r => {
+          // 要进行递归调用来判断y是不是一个promise
+          resolvePromise(promise2, y, resolve, reject);
+        }, r => { //当构建x时选择了了reject()或者构建x时同步的出错时（捕获了也会调用reject()），就会进入这个回调
           if (called) return;
           called = true;
           reject(r);
@@ -113,8 +118,8 @@ class MyPromise {
     });
     return promise2;
   }
-  catch(errorCallback) {
-    return this.then.call(null, errorCallback);
+  catch(onRejected) {
+    return this.then(null, onRejected);
   }
 }
 module.exports = MyPromise;
