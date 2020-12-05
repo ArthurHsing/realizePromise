@@ -45,6 +45,8 @@ class MyPromise {
 
     this.onFulfilledCallbacks = [];
     this.onRejectedCallbacks = [];
+    // 这里一定千万千万要用箭头函数，箭头函数的this只与它被创建时的环境有关系，如果用成普通函数，那么this的指向
+    // 将不确定，功能将很难实现！！！！！！！！
     const resolve = (value) => {
       if (this.status === PENDING) {
         this.status = FULFILLED;
