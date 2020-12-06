@@ -45,8 +45,8 @@ class MyPromise {
 
     this.onFulfilledCallbacks = [];
     this.onRejectedCallbacks = [];
-    // 这里一定千万千万要用箭头函数，箭头函数的this只与它被创建时的环境有关系，如果用成普通函数，那么this的指向
-    // 将不确定，功能将很难实现！！！！！！！！
+    // resolve和reject最好写成箭头函数，箭头函数的this只与它被创建时的环境有关系，
+    // 如果用成普通函数，那应该使用bind将当函数内部的this固定了！！！
     const resolve = (value) => {
       if (this.status === PENDING) {
         this.status = FULFILLED;
@@ -55,6 +55,15 @@ class MyPromise {
         this.onFulfilledCallbacks.forEach(fn => fn());
       }
     }
+    // 使用普通函数的写法，最后要使用bind将函数内部this的指向固定
+    // const resolve = function (value) {
+    //   if (this.status === PENDING) {
+    //     this.status = FULFILLED;
+    //     this.value = value;
+    //     // 发布（这是初始化promise时异步回调函数的收集器）
+    //     this.onFulfilledCallbacks.forEach(fn => fn());
+    //   }
+    // }.bind(this)
     const reject = (reason) => {
       if (this.status === PENDING) {
         this.status = REJECTED;
